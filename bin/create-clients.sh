@@ -13,7 +13,7 @@
 __dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 docker_image=oryd/hydra:v1.0.0-beta.9-alpine
-network=auth.reaction.localhost
+network=reaction-api
 hydra_admin_port=4445
 hydra_admin_url=http://hydra.${network}:${hydra_admin_port}
 
