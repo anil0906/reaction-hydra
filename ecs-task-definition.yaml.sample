@@ -1,0 +1,69 @@
+---
+containerDefinitions:
+- command:
+  - serve
+  - all
+  - "--dangerous-force-http"
+  environment:
+  - name: OAUTH2_ISSUER_URL
+    value: http://localhost:4444
+  - name: OAUTH2_CONSENT_URL
+    value: http://localhost:3000/consent
+  - name: OAUTH2_LOGIN_URL
+    value: http://localhost:3000/login
+  - name: DATABASE_URL
+    value: postgres://hydra:changeme@postgres:5432/hydra?sslmode=disable
+  - name: SYSTEM_SECRET
+    value: youReallyNeedToChangeThis
+  - name: OAUTH2_SHARE_ERROR_DEBUG
+    value: '1'
+  - name: OIDC_SUBJECT_TYPES_SUPPORTED
+    value: public,pairwise
+  - name: OIDC_SUBJECT_TYPE_PAIRWISE_SALT
+    value: youReallyNeedToChangeThis
+  essential: true
+  image: oryd/hydra:v1.0.0-beta.9-alpine
+  name: hydra
+  cpu: 100
+  memory: 256
+  portMappings:
+  - containerPort: 4444
+    hostPort: 4444
+  - containerPort: 4445
+    hostPort: 4445
+  - containerPort: 5555
+    hostPort: 5555
+- command:
+  - migrate
+  - sql
+  - "-e"
+  environment:
+  - name: DATABASE_URL
+    value: postgres://hydra:changeme@postgres:5432/hydra?sslmode=disable
+  essential: true
+  image: oryd/hydra:v1.0.0-beta.9-alpine
+  name: hydra-migrate
+  cpu: 100
+  memory: 256
+- environment:
+  - name: POSTGRES_USER
+    value: hydra
+  - name: POSTGRES_PASSWORD
+    value: changeme
+  - name: POSTGRES_DB
+    value: hydra
+  essential: true
+  image: postgres:10.3
+  cpu: 100
+  memory: 256
+  mountPoints:
+  - containerPath: "/var/lib/postgresql/data"
+    sourceVolume: Postgres-Data
+  name: postgres
+  portMappings:
+  - containerPort: 5432
+family: ''
+volumes:
+- host:
+    sourcePath: postgres-data
+  name: Postgres-Data
